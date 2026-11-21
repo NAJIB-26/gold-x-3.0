@@ -1,0 +1,8 @@
+gold-x-app/
+├── app.py                  # الواجهة الرئيسية
+├── model.py                # نموذج GOLD-X 3.0
+├── data_fetcher.py         # جالب البيانات (3 مصادر بديلة)
+├── requirements.txt
+├── .streamlit/
+│   └── config.toml
+└── README.md
