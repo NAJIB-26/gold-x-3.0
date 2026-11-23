@@ -1,8 +1,11 @@
 name: Update Gold Data
 on:
   schedule:
-    - cron: '*/15 * * * *' # يعمل كل 15 دقيقة
-  workflow_dispatch: # يسمح لك بتشغيله يدوياً
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   update:
