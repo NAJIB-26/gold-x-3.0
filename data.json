@@ -1,0 +1,14 @@
+{
+    "current_price": 3585.0,
+    "price_change": 0.0,
+    "dxy_value": 103.0,
+    "nasdaq_value": 22000.0,
+    "vix": 20.0,
+    "treasury_yield": 5.1,
+    "dxy_change": 0.0,
+    "sp500_change_5d": 0.0,
+    "gold_equity_corr": 0.5,
+    "gold_ai_correlation": 0.5,
+    "volume_spike": 1.0,
+    "sources": {"gold": "waiting", "vix": "waiting", "dxy": "waiting", "nasdaq": "waiting", "treasury": "waiting"}
+}
