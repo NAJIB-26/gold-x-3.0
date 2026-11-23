@@ -151,11 +151,12 @@ def gold_x_model(data):
     
     predicted_price = data['current_price'] * (1 + change)
     
-    base_conf = abs(change) * 10
-    penalty = {MarketRegime.NORMAL: 0, MarketRegime.STRESS: -1.5,
-               MarketRegime.CRISIS: -3.0}[regime]
-    confidence = max(0, min(10, base_conf + penalty))
-    
+    # إصلاح: جعل درجة الثقة منطقية ولا تعطي صفراً بسبب العقوبة
+base_conf = abs(change) * 100  # ضربنا في 100 لأن النسبة عشرية
+penalty = {MarketRegime.NORMAL: 0, MarketRegime.STRESS: 1.5,
+           MarketRegime.CRISIS: 3.0}[regime]
+confidence = min(10, base_conf + penalty) # النتيجة ستكون بين 1 و 10
+
     if radar['status'] == "CRITICAL":
         rec = "⛔ لا تشترِ. بيع قسري نشط. انتظر 48-72 ساعة."
     elif change > 0.02 and confidence > 5:
