@@ -1,4 +1,4 @@
-"""نموذج GOLD-X 3.0: متعدد الطبقات مع وحدة الركود التضخمي"""
+"""نموذج GOLD-X 3.0"""
 import numpy as np
 from enum import Enum
 
@@ -9,9 +9,7 @@ class MarketRegime(Enum):
     CRISIS = "crisis"
 
 
-def detect_regime(vix, sp500_change_5d, gold_equity_corr, 
-                  algo_intensity, open_interest_ratio):
-    """كاشف حالة السوق (0-16 نقطة)"""
+def detect_regime(vix, sp500_change_5d, gold_equity_corr, algo_intensity, open_interest_ratio):
     score = 0
     if vix > 35: score += 3
     elif vix > 25: score += 2
@@ -36,7 +34,6 @@ def detect_regime(vix, sp500_change_5d, gold_equity_corr,
 
 
 def economic_model(dxy_change, tip_change, cpi_change, fed_stance, regime):
-    """النموذج الاقتصادي بمعاملات مختلفة لكل حالة"""
     betas = {
         MarketRegime.NORMAL:  {'dxy': -0.85, 'tip': -1.20, 'cpi': 0.55, 'fed': 0.20},
         MarketRegime.STRESS:  {'dxy': -0.60, 'tip': -0.90, 'cpi': 0.70, 'fed': 0.15},
@@ -47,7 +44,6 @@ def economic_model(dxy_change, tip_change, cpi_change, fed_stance, regime):
 
 
 def flow_model(open_interest_ratio, volume_spike, etf_outflow_ratio, regime):
-    """نموذج التدفقات القسرية"""
     pressure = (max(0, open_interest_ratio - 1.0) * 0.4 +
                 max(0, volume_spike - 1.5) * 0.3 +
                 max(0, etf_outflow_ratio) * 0.3)
@@ -56,9 +52,7 @@ def flow_model(open_interest_ratio, volume_spike, etf_outflow_ratio, regime):
     return -pressure * mult
 
 
-def ai_tech_model(ai_bubble_score, ai_earnings_surprise, 
-                  ipo_sentiment, gold_ai_correlation, regime):
-    """نموذج الذكاء الاصطناعي"""
+def ai_tech_model(ai_bubble_score, ai_earnings_surprise, ipo_sentiment, gold_ai_correlation, regime):
     direct = -ai_bubble_score * 0.05 + ai_earnings_surprise * 0.03
     crash_risk = 0
     if ai_bubble_score > 0.8 and ai_earnings_surprise < 0:
@@ -67,7 +61,6 @@ def ai_tech_model(ai_bubble_score, ai_earnings_surprise,
 
 
 def dynamic_weights(regime):
-    """الأوزان الديناميكية حسب حالة السوق"""
     return {
         MarketRegime.NORMAL: {'economic': 0.60, 'flow': 0.15, 'ai': 0.25},
         MarketRegime.STRESS: {'economic': 0.40, 'flow': 0.35, 'ai': 0.25},
@@ -75,9 +68,7 @@ def dynamic_weights(regime):
     }[regime]
 
 
-def forced_selling_radar(volume_spike, price_change, 
-                          open_interest_ratio, sp500_change):
-    """رادار البيع القسري (0-10)"""
+def forced_selling_radar(volume_spike, price_change, open_interest_ratio, sp500_change):
     score = 0
     if volume_spike > 2.0: score += 3
     elif volume_spike > 1.5: score += 2
@@ -88,18 +79,17 @@ def forced_selling_radar(volume_spike, price_change,
     if open_interest_ratio > 1.5: score += 2
     
     if score >= 7:
-        return {"status": "CRITICAL", "score": score, 
+        return {"status": "CRITICAL", "score": score,
                 "msg": "⛔ بيع قسري نشط. لا تشترِ الآن. انتظر 48-72 ساعة."}
     elif score >= 4:
         return {"status": "WARNING", "score": score,
-                "msg": "⚡ ضغط بيع محتمل. راقب السوق عن كثب."}
+                "msg": "⚡ ضغط بيع محتمل. راقب السوق."}
     return {"status": "CLEAR", "score": score,
             "msg": "✅ السوق مستقر نسبياً. يمكن التفكير في الشراء."}
 
 
-def stagflation_index(core_pce=3.1, gdp_growth=3.4, 
-                      unemployment_change=-0.1, real_rate=0.78, oil=95.8):
-    """مؤشر احتمالية الركود التضخمي (0-100)"""
+def stagflation_index(core_pce=3.1, gdp_growth=3.4, unemployment_change=-0.1,
+                      real_rate=0.78, oil=95.8):
     score = 0
     if core_pce > 3.0: score += 25
     elif core_pce > 2.5: score += 15
@@ -115,48 +105,41 @@ def stagflation_index(core_pce=3.1, gdp_growth=3.4,
 
 
 def gold_x_model(data):
-    """الدالة الرئيسية النهائية"""
-    regime = detect_regime(
-        data['vix'], data['sp500_change_5d'],
-        data['gold_equity_corr'], data['algo_intensity'],
-        data['open_interest_ratio']
-    )
-    
+    regime = detect_regime(data['vix'], data['sp500_change_5d'],
+                           data['gold_equity_corr'], data['algo_intensity'],
+                           data['open_interest_ratio'])
+                           
     econ = economic_model(data['dxy_change'], data['tip_change'],
                           data['cpi_change'], data['fed_stance'], regime)
+                          
     flow = flow_model(data['open_interest_ratio'], data['volume_spike'],
                       data['etf_outflow_ratio'], regime)
+                      
     ai = ai_tech_model(data['ai_bubble_score'], data['ai_earnings_surprise'],
                        data['ipo_sentiment'], data['gold_ai_correlation'], regime)
-    
+                       
     w = dynamic_weights(regime)
     change = w['economic'] * econ + w['flow'] * flow + w['ai'] * ai
     
-    radar = forced_selling_radar(
-        data['volume_spike'], change,
-        data['open_interest_ratio'], data['sp500_change_5d']
-    )
-    
+    radar = forced_selling_radar(data['volume_spike'], change,
+                                  data['open_interest_ratio'],
+                                  data['sp500_change_5d'])
+                                  
     warnings = []
-    if data['ai_bubble_score'] > 0.85:
-        warnings.append("🔴 فقاعة AI في منطقة الخطر")
-    if data['gold_ai_correlation'] > 0.5:
-        warnings.append("🟡 ارتباط الذهب بـ AI مرتفع")
-    if data['open_interest_ratio'] > 1.8:
-        warnings.append("🟠 مراكز مفتوحة مرتفعة جداً")
-    if data['vix'] > 35:
-        warnings.append("🔴 VIX في منطقة ذعر")
-    if data['treasury_yield'] > 5.0:
-        warnings.append("🔴 عائد السندات فوق 5%")
+    if data['ai_bubble_score'] > 0.85: warnings.append("🔴 فقاعة AI في خطر")
+    if data['gold_ai_correlation'] > 0.5: warnings.append("🟡 ارتباط الذهب بـ AI مرتفع")
+    if data['open_interest_ratio'] > 1.8: warnings.append("🟠 مراكز مفتوحة ضخمة")
+    if data['vix'] > 35: warnings.append("🔴 VIX في منطقة ذعر")
+    if data['treasury_yield'] > 5.0: warnings.append("🔴 عائد السندات فوق 5%")
     
-    predicted_price = data['current_price'] * (1 + change)
+    predicted = data['current_price'] * (1 + change)
     
-    # إصلاح: جعل درجة الثقة منطقية ولا تعطي صفراً بسبب العقوبة
-base_conf = abs(change) * 100  # ضربنا في 100 لأن النسبة عشرية
-penalty = {MarketRegime.NORMAL: 0, MarketRegime.STRESS: 1.5,
-           MarketRegime.CRISIS: 3.0}[regime]
-confidence = min(10, base_conf + penalty) # النتيجة ستكون بين 1 و 10
-
+    # تصحيح معادلة درجة الثقة
+    base_conf = abs(change) * 100
+    penalty = {MarketRegime.NORMAL: 0, MarketRegime.STRESS: 1.5,
+               MarketRegime.CRISIS: 3.0}[regime]
+    confidence = min(10, base_conf + penalty)
+    
     if radar['status'] == "CRITICAL":
         rec = "⛔ لا تشترِ. بيع قسري نشط. انتظر 48-72 ساعة."
     elif change > 0.02 and confidence > 5:
@@ -165,22 +148,12 @@ confidence = min(10, base_conf + penalty) # النتيجة ستكون بين 1 �
         rec = "🔴 لا تشترِ الآن. انتظر استقرار السوق."
     else:
         rec = "🟡 انتظار / حياد"
-    
-    stag_prob = stagflation_index()
-    
+        
     return {
-        'regime': regime.value,
-        'change_pct': change * 100,
-        'predicted_price': predicted_price,
-        'confidence': confidence,
-        'recommendation': rec,
-        'radar': radar,
-        'warnings': warnings,
-        'stagflation_probability': stag_prob,
-        'breakdown': {
-            'economic': round(econ, 4),
-            'flow': round(flow, 4),
-            'ai': round(ai, 4),
-            'weights': w
-        }
+        'regime': regime.value, 'change_pct': change * 100,
+        'predicted_price': predicted, 'confidence': confidence,
+        'recommendation': rec, 'radar': radar, 'warnings': warnings,
+        'stagflation_probability': stagflation_index(),
+        'breakdown': {'economic': round(econ, 4), 'flow': round(flow, 4),
+                      'ai': round(ai, 4), 'weights': w}
     }
