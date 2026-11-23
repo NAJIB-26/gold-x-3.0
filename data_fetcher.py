@@ -73,19 +73,19 @@ def _fetch_investing_scrape():
 # ═══════════════════════════════════════════════════
 # الدالة الرئيسية لجلب سعر الذهب
 # ═══════════════════════════════════════════════════
-
 @st.cache_data(ttl=300)
 def get_gold_price():
-    """
-    جلب سعر الذهب من 4 مصادر بالترتيب:
-    1. yfinance (GC=F)
-    2. Stooq (xauusd)
-    3. Investing.com (كشط)
-    4. قيمة احتياطية
-    """
-    sources_tried = []
-    
-    # المصدر 1: yfinance
+    """جلب سعر الذهب: Stooq أولاً (أكثر استقراراً) ثم Yahoo ثم Investing"""
+    # 1. المحاولة أولاً عبر Stooq
+    data = _fetch_stooq("xauusd")
+    if data is not None and not data.empty:
+        return {
+            'price': float(data['Close'].iloc[-1]),
+            'change': float((data['Close'].iloc[-1] / data['Close'].iloc[-2] - 1)) if len(data) > 1 else 0,
+            'volume': 1, 'avg_volume': 1, 'history': data['Close'],
+            'source': 'Stooq'
+        }
+    # 2. إذا فشل، جرب Yahoo Finance
     data = _fetch_yfinance("GC=F")
     if data is not None and not data.empty:
         return {
@@ -96,29 +96,15 @@ def get_gold_price():
             'history': data['Close'],
             'source': 'Yahoo Finance'
         }
-    sources_tried.append("yfinance")
-    
-    # المصدر 2: Stooq
-    data = _fetch_stooq("xauusd")
-    if data is not None:
-        return {
-            'price': float(data['Close'].iloc[-1]),
-            'change': float((data['Close'].iloc[-1] / data['Close'].iloc[-2] - 1)) if len(data) > 1 else 0,
-            'volume': 1, 'avg_volume': 1,
-            'history': data['Close'],
-            'source': 'Stooq'
-        }
-    sources_tried.append("Stooq")
-    
-    # المصدر 3: Investing.com
+    # 3. المحاولة الأخيرة عبر Investing
     price = _fetch_investing_scrape()
     if price is not None:
-        return {
-            'price': price, 'change': 0, 'volume': 1, 'avg_volume': 1,
-            'history': pd.Series([price]),
-            'source': 'Investing.com'
-        }
-    sources_tried.append("Investing.com")
+        return {'price': price, 'change': 0, 'volume': 1, 'avg_volume': 1,
+                'history': pd.Series([price]), 'source': 'Investing.com'}
+    
+    # 4. قيمة احتياطية
+    return {'price': 3585.0, 'change': 0, 'volume': 1, 'avg_volume': 1,
+            'history': pd.Series([3585.0]), 'source': '⚠️ احتياطي'}
     
     # المصدر 4: قيمة احتياطية
     return {
