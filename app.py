@@ -123,6 +123,13 @@ st.markdown("""
     [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #0A0E27 0%, #151A3A 100%);
     }
+/* إصلاح الشريط الجانبي على الجوال */
+@media (max-width: 768px) {
+    [data-testid="stSidebar"] {
+        width: 300px !important;
+    }
+    .main-title { font-size: 2rem; }
+}
 </style>
 """, unsafe_allow_html=True)
 
