@@ -1,56 +1,45 @@
-"""Random joke page backed by the Official Joke API."""
+"""Gold price calculator Streamlit page."""
 
-import requests
 import streamlit as st
 
 
-API_URL = "https://official-joke-api.appspot.com/random_joke"
-REQUEST_TIMEOUT_SECONDS = 10
-
-st.set_page_config(page_title="Random Joke Generator", page_icon="😂")
-st.title("😂 Random Joke Generator")
-st.write("Need a quick laugh? Fetch a random joke from an external API.")
+GRAMS_PER_OUNCE = 31.1034768
 
 
-def fetch_random_joke():
-    """Fetch and validate one joke from the Official Joke API."""
-    response = requests.get(API_URL, timeout=REQUEST_TIMEOUT_SECONDS)
-    response.raise_for_status()
-    joke = response.json()
+st.set_page_config(page_title="حاسبة أسعار الذهب", page_icon="🪙", layout="wide")
+st.title("🪙 حاسبة أسعار الذهب")
+st.write("احسب قيمة الذهب حسب العيار والوزن وسعر الأونصة.")
 
-    if not isinstance(joke, dict):
-        raise ValueError("The joke service returned an unexpected response.")
+try:
+    from data_fetcher import fetch_all_data
 
-    setup = joke.get("setup")
-    punchline = joke.get("punchline")
-    if not isinstance(setup, str) or not setup.strip():
-        raise ValueError("The joke service did not return a setup.")
-    if not isinstance(punchline, str) or not punchline.strip():
-        raise ValueError("The joke service did not return a punchline.")
+    data = fetch_all_data()
+    default_ounce_price = float(data["current_price"])
+except Exception:
+    default_ounce_price = 3555.20
 
-    return {"setup": setup.strip(), "punchline": punchline.strip()}
+st.session_state.setdefault("gold_ounce_price", default_ounce_price)
 
+col1, col2, col3 = st.columns(3)
+with col1:
+    ounce_price = st.number_input(
+        "سعر الأونصة بالدولار",
+        min_value=0.01,
+        value=float(st.session_state.gold_ounce_price),
+        step=1.0,
+    )
+with col2:
+    weight = st.number_input("الوزن بالجرام", min_value=0.01, value=1.0, step=0.5)
+with col3:
+    purity = st.selectbox("عيار الذهب", (24, 22, 21, 18, 14), index=0)
 
-if "random_joke" not in st.session_state:
-    st.session_state.random_joke = None
+gram_price = (ounce_price / GRAMS_PER_OUNCE) * (purity / 24)
+total_price = gram_price * weight
 
-if st.button("Tell me a joke 🎲", type="primary"):
-    try:
-        with st.spinner("Finding a joke..."):
-            st.session_state.random_joke = fetch_random_joke()
-        st.session_state.joke_error = None
-    except (requests.RequestException, ValueError) as error:
-        st.session_state.random_joke = None
-        st.session_state.joke_error = str(error)
+st.divider()
+metric1, metric2, metric3 = st.columns(3)
+metric1.metric("سعر الجرام", f"${gram_price:,.2f}")
+metric2.metric("الوزن", f"{weight:,.2f} جم")
+metric3.metric("القيمة الإ��مالية", f"${total_price:,.2f}")
 
-if st.session_state.get("joke_error"):
-    st.error(f"Couldn't fetch a joke right now: {st.session_state.joke_error}")
-elif st.session_state.random_joke:
-    joke = st.session_state.random_joke
-    st.subheader(joke["setup"])
-    with st.expander("Reveal the punchline"):
-        st.write(joke["punchline"])
-else:
-    st.info("Click the button to get your first joke.")
-
-st.caption("Jokes provided by the Official Joke API.")
+st.caption("الأسعار مبنية على سعر الأونصة للذهب الخالص، وتُحسب نسب العيارات المختلفة من عيار 24.")
