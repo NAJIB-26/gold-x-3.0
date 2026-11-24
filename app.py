@@ -123,20 +123,25 @@ st.markdown("""
         background: linear-gradient(180deg, #0A0E27 0%, #151A3A 100%);
     }
     
-    /* إصلاح الشريط الجانبي على الجوال */
+        /* إصلاح الشريط الجانبي على الجوال */
     @media (max-width: 768px) {
         section[data-testid="stSidebar"] {
-            width: 80vw !important;
-            min-width: 80vw !important;
-            transform: none !important; /* منع أي إزاحة */
+            width: 100vw !important; /* يأخذ عرض الشاشة بالكامل */
+            min-width: 100vw !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 999999 !important;
         }
-        /* إجبار النصوص على الظهور أفقياً */
-        section[data-testid="stSidebar"] p, 
-        section[data-testid="stSidebar"] div, 
-        section[data-testid="stSidebar"] span {
+        
+        /* إجبار النصوص على العرض الأفقي */
+        section[data-testid="stSidebar"] p,
+        section[data-testid="stSidebar"] div,
+        section[data-testid="stSidebar"] span,
+        section[data-testid="stSidebar"] label {
             writing-mode: horizontal-tb !important;
             text-orientation: mixed !important;
             white-space: normal !important;
+            word-wrap: break-word !important;
         }
     }
 </style>
