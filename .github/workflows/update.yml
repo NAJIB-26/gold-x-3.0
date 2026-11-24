@@ -19,12 +19,11 @@ jobs:
       - name: Install dependencies
         run: pip install yfinance pandas
       - name: Run updater
-        run: python updater.py
-      - - name: Commit and push changes
+        - name: Commit and push changes
   run: |
     git config --global user.name 'GitHub Action'
     git config --global user.email 'action@github.com'
     git add data.json
     git commit -m "Auto-update data.json" || exit 0
     git pull --rebase origin main
-    git push
+    git pushh
