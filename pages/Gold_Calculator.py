@@ -14,8 +14,8 @@ CURRENCIES = {
 }
 
 
-st.set_page_config(page_title="أسعار الذهب حسب العيار", page_icon="🪙", layout="wide")
-st.title("🪙 أسعار الذهب حسب الجرام والعيار")
+st.set_page_config(page_title="أسعار الذهب حسب العيار", page_icon=".", layout="wide")
+st.title(".أسعار الذهب حسب الجرام والعيار")
 st.write("اختر العملة، ثم أدخل سعر الصرف والوزن لحساب قيمة الذهب.")
 
 try:
