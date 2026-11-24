@@ -123,13 +123,15 @@ st.markdown("""
     [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #0A0E27 0%, #151A3A 100%);
     }
-/* إصلاح الشريط الجانبي على الجوال */
 @media (max-width: 768px) {
-    [data-testid="stSidebar"] {
-        width: 300px !important;
+    section[data-testid="stSidebar"] {
+        width: 85vw !important;
+        min-width: 85vw !important;
     }
-    .main-title { font-size: 2rem; }
-}
+    section[data-testid="stSidebar"] * {
+        writing-mode: horizontal-tb !important; /* لإصلاح النص العمودي */
+        text-orientation: mixed !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
