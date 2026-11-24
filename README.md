@@ -13,7 +13,6 @@
 
 ## 🚀 التشغيل المحلي
 
-```bash
-pip install -r requirements.txt
-streamlit run app.py
-```
+git add requirements.txt
+git commit -m "chore: bump streamlit to 1.37 for st.fragment support"
+git push
