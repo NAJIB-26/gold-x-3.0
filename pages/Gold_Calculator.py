@@ -14,8 +14,16 @@ CURRENCIES = {
 }
 
 
-st.set_page_config(page_title="أسعار الذهب حسب العيار", page_icon=".", layout="wide")
-st.title(".أسعار الذهب حسب الجرام والعيار")
+def format_english_number(value, decimals=2):
+    """Format numbers with Western digits and isolate them from RTL text."""
+    formatted = f"{value:,.{decimals}f}"
+    # Keep displayed price digits ASCII even if a browser applies Arabic numerals.
+    formatted = formatted.translate(str.maketrans("٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹", "01234567890123456789"))
+    return f"\u2066{formatted}\u2069"
+
+
+st.set_page_config(page_title="أسعار الذهب حسب العيار", page_icon="🪙", layout="wide")
+st.title("🪙 أسعار الذهب حسب الجرام والعيار")
 st.write("اختر العملة، ثم أدخل سعر الصرف والوزن لحساب قيمة الذهب.")
 
 try:
@@ -56,6 +64,7 @@ with settings_col3:
         min_value=0.01,
         value=float(st.session_state.gold_ounce_price),
         step=1.0,
+        format="%.2f",
         key="gold_ounce_price",
     )
 
@@ -67,8 +76,10 @@ st.subheader(f"سعر الجرام حسب العيار — {currency_code}")
 price_rows = [
     {
         "العيار": f"عيار {karat}",
-        "نسبة النقاء": f"{karat / 24:.2%}",
-        f"سعر الجرام ({currency_code})": f"{(ounce_price / GRAMS_PER_TROY_OUNCE) * (karat / 24):,.2f}",
+        "نسبة النقاء": format_english_number(karat / 24 * 100) + "%",
+        f"سعر الجرام ({currency_code})": format_english_number(
+            (ounce_price / GRAMS_PER_TROY_OUNCE) * (karat / 24)
+        ),
     }
     for karat in KARATS
 ]
@@ -77,7 +88,9 @@ st.table(price_rows)
 st.subheader("احسب قيمة وزن محدد")
 calc_col1, calc_col2 = st.columns(2)
 with calc_col1:
-    weight = st.number_input("الوزن بالجرام", min_value=0.01, value=1.0, step=0.5)
+    weight = st.number_input(
+        "الوزن بالجرام", min_value=0.01, value=1.0, step=0.5, format="%.2f"
+    )
 with calc_col2:
     selected_karat = st.selectbox("العيار", KARATS, format_func=lambda karat: f"عيار {karat}")
 
@@ -85,9 +98,15 @@ gram_price = (ounce_price / GRAMS_PER_TROY_OUNCE) * (selected_karat / 24)
 total_price = gram_price * weight
 
 metric1, metric2, metric3 = st.columns(3)
-metric1.metric(f"سعر الجرام — عيار {selected_karat}", f"{gram_price:,.2f} {currency_code}")
-metric2.metric("الوزن", f"{weight:,.2f} جم")
-metric3.metric("القيمة الإجمالية", f"{total_price:,.2f} {currency_code}")
+metric1.metric(
+    f"سعر الجرام — عيار {selected_karat}",
+    f"{format_english_number(gram_price)} {currency_code}",
+)
+metric2.metric("الوزن", f"{format_english_number(weight)} جم")
+metric3.metric(
+    "القيمة الإجمالية",
+    f"{format_english_number(total_price)} {currency_code}",
+)
 
 st.caption(
     f"العملة المحددة: {currency_name}. أسعار الصرف الافتراضية تقريبية وقابلة للتعديل، "
