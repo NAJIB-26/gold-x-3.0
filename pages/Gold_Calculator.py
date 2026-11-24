@@ -18,12 +18,12 @@ def format_english_number(value, decimals=2):
     """Format numbers with Western digits and isolate them from RTL text."""
     formatted = f"{value:,.{decimals}f}"
     # Keep displayed price digits ASCII even if a browser applies Arabic numerals.
-    formatted = formatted.translate(str.maketrans("٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹", "01234567890123456789"))
+    formatted = formatted.translate(str.maketrans("01234567890123456789", "01234567890123456789"))
     return f"\u2066{formatted}\u2069"
 
 
-st.set_page_config(page_title="أسعار الذهب حسب العيار", page_icon="🪙", layout="wide")
-st.title("🪙 أسعار الذهب حسب الجرام والعيار")
+st.set_page_config(page_title="أسعار الذهب حسب العيار", page_icon=".", layout="wide")
+st.title(". أسعار الذهب حسب الجرام والعيار")
 st.write("اختر العملة، ثم أدخل سعر الصرف والوزن لحساب قيمة الذهب.")
 
 try:
