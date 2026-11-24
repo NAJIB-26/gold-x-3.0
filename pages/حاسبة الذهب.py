@@ -6,8 +6,8 @@ import streamlit as st
 GRAMS_PER_OUNCE = 31.1034768
 
 
-st.set_page_config(page_title="حاسبة أسعار الذهب", page_icon="🪙", layout="wide")
-st.title("🪙 حاسبة أسعار الذهب")
+st.set_page_config(page_title="حاسبة أسعار الذهب", page_icon=".", layout="wide")
+st.title(". حاسبة أسعار الذهب")
 st.write("احسب قيمة الذهب حسب العيار والوزن وسعر الأونصة.")
 
 try:
@@ -40,6 +40,6 @@ st.divider()
 metric1, metric2, metric3 = st.columns(3)
 metric1.metric("سعر الجرام", f"${gram_price:,.2f}")
 metric2.metric("الوزن", f"{weight:,.2f} جم")
-metric3.metric("القيمة الإ��مالية", f"${total_price:,.2f}")
+metric3.metric("القيمة الإجمالية", f"${total_price:,.2f}")
 
 st.caption("الأسعار مبنية على سعر الأونصة للذهب الخالص، وتُحسب نسب العيارات المختلفة من عيار 24.")
