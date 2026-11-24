@@ -1,12 +1,12 @@
 import json
 import requests
 import streamlit as st
-import pandas as pd
+import math
 
 @st.cache_data(ttl=60) # يقرأ الملف كل دقيقة
 def fetch_all_data():
     try:
-        # قراءة الملف مباشرة من مستودعك (استبدل NAJIB-26 باسم حسابك)
+        # قراءة الملف مباشرة من مستودعك
         url = "https://raw.githubusercontent.com/NAJIB-26/gold-x-3.0/main/data.json"
         response = requests.get(url)
         data = response.json()
@@ -22,15 +22,32 @@ def fetch_all_data():
         data['ai_earnings_surprise'] = -0.02
         data['ipo_sentiment'] = 0.0
         
+        # تنظيف أي قيم تالفة (nan) قادمة من ياهو
+        for key, value in data.items():
+            if isinstance(value, (int, float)):
+                if math.isnan(value) or math.isinf(value):
+                    data[key] = 0.0
+                    
+        # التأكد من وجود القيم الأساسية في حال نقصها
+        defaults = {
+            'current_price': 3628.0, 'price_change': 0.0, 'volume_spike': 1.0,
+            'dxy_change': 0.0, 'sp500_change_5d': 0.0, 'vix': 20.0, 'treasury_yield': 4.92,
+            'dxy_value': 104.3, 'nasdaq_value': 22000.0, 'gold_equity_corr': 0.45,
+            'gold_ai_correlation': 0.45
+        }
+        for k, v in defaults.items():
+            if k not in data or data[k] is None:
+                data[k] = v
+
         return data
     except Exception as e:
         st.error(f"فشل قراءة البيانات من الملف: {e}")
-        # قيم احتياطية في حال فشل القراءة
+        # قيم احتياطية في حال فشل القراءة تماماً
         return {
-            'current_price': 3585.0, 'price_change': 0.0, 'volume_spike': 1.0,
-            'dxy_change': 0.0, 'dxy_value': 103.0, 'sp500_change_5d': 0.0,
-            'nasdaq_value': 22000.0, 'vix': 20.0, 'treasury_yield': 5.1,
-            'gold_equity_corr': 0.5, 'gold_ai_correlation': 0.5,
+            'current_price': 3628.0, 'price_change': 0.0, 'volume_spike': 1.0,
+            'dxy_change': 0.0, 'dxy_value': 104.3, 'sp500_change_5d': 0.0,
+            'nasdaq_value': 22000.0, 'vix': 26.6, 'treasury_yield': 4.92,
+            'gold_equity_corr': 0.45, 'gold_ai_correlation': 0.45,
             'tip_change': 0.002, 'cpi_change': 0.004, 'fed_stance': -0.8,
             'algo_intensity': 0.75, 'open_interest_ratio': 1.5,
             'etf_outflow_ratio': 0.01, 'ai_bubble_score': 0.75,
