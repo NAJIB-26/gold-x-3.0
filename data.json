@@ -1,7 +1,7 @@
 {
-    "current_price": 3617.800048828125,
-    "price_change": 0.015693912804116916,
-    "dxy_value": 103.69499969482422,
+    "current_price": NaN,
+    "price_change": NaN,
+    "dxy_value": 103.822998046875,
     "nasdaq_value": 23585.802734375,
     "vix": 28.290000915527344,
     "treasury_yield": 4.8480000495910645,
@@ -17,5 +17,5 @@
         "nasdaq": "Yahoo via Updater",
         "treasury": "Yahoo via Updater"
     },
-    "last_update": "2026-11-25 22:40:25"
+    "last_update": "2026-11-26 04:23:03"
 }
