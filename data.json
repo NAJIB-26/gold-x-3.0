@@ -4,7 +4,7 @@
     "dxy_value": 104.01399993896484,
     "nasdaq_value": 24129.5,
     "vix": 23.809999465942383,
-    "treasury_yield": 4.935999870300293,
+    "treasury_yield": NaN,
     "dxy_change": -0.0029332798768648694,
     "sp500_change_5d": 0.00165795689993109,
     "gold_equity_corr": 0.45,
@@ -17,5 +17,5 @@
         "nasdaq": "Yahoo via Updater",
         "treasury": "Yahoo via Updater"
     },
-    "last_update": "2026-11-27 22:55:59"
+    "last_update": "2026-11-28 04:27:37"
 }
