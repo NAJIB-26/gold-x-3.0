@@ -1,11 +1,11 @@
 {
-    "current_price": 3668.5,
+    "current_price": 3639.60009765625,
     "price_change": NaN,
-    "dxy_value": 104.01399993896484,
+    "dxy_value": NaN,
     "nasdaq_value": 24129.5,
     "vix": 23.809999465942383,
-    "treasury_yield": NaN,
-    "dxy_change": -0.0029332798768648694,
+    "treasury_yield": 4.935999870300293,
+    "dxy_change": NaN,
     "sp500_change_5d": 0.00165795689993109,
     "gold_equity_corr": 0.45,
     "gold_ai_correlation": 0.45,
@@ -17,5 +17,5 @@
         "nasdaq": "Yahoo via Updater",
         "treasury": "Yahoo via Updater"
     },
-    "last_update": "2026-11-28 04:27:37"
+    "last_update": "2026-11-28 13:25:39"
 }
